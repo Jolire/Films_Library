@@ -2,8 +2,6 @@ package com.cinema.filmlibrary.exception;
 
 /**
  * Класс {@code ErrorResponse} представляет объект ответа об ошибке.
- * Используется для формирования стандартных сообщений об ошибках в приложении.
- * Содержит статус ошибки и соответствующее сообщение.
  */
 public class ErrorResponse {
 
@@ -12,9 +10,6 @@ public class ErrorResponse {
 
     /**
      * Конструктор для создания объекта {@code ErrorResponse}.
-     *
-     * @param status  код состояния HTTP (например, 400, 500)
-     * @param message описание ошибки
      */
     public ErrorResponse(int status, String message) {
         this.status = status;

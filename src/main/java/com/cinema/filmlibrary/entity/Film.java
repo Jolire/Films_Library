@@ -16,10 +16,7 @@ public class Film {
     }
 
     /**
-     * Конструктор с параметрами для создания объекта {@code Film}.
-     *
-     * @param title       название фильма
-     * @param releaseYear год выпуска фильма
+     * Конструктор с параметрами.
      */
     public Film(String title, int releaseYear) {
         this.title = title;
@@ -42,6 +39,3 @@ public class Film {
         this.releaseYear = releaseYear;
     }
 }
-/*
-hello
- */
