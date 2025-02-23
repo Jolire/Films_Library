@@ -17,6 +17,7 @@ public class FilmController {
 
     private final List<Film> filmDatabase = new ArrayList<>();
 
+    // Инициализация списка фильмов
     public FilmController() {
         filmDatabase.add(new Film("Inception", 2010));
         filmDatabase.add(new Film("Interstellar", 2014));
@@ -25,7 +26,7 @@ public class FilmController {
     }
 
     /**
-     * Получает список фильмов по названию и/или году выпуска.
+     * Получает список фильмов по параметрам запроса (title, releaseYear).
      * Можно передавать один или оба параметра.
      */
     @GetMapping
@@ -51,4 +52,22 @@ public class FilmController {
         return ResponseEntity.ok(filteredFilms);
     }
 
+    /**
+     * Получает фильм по параметрам пути (title, releaseYear).
+     */
+    @GetMapping("/{title}/{releaseYear}")
+    public ResponseEntity<Film> getFilmByPath(
+            @PathVariable String title,
+            @PathVariable int releaseYear) {
+
+        // Поиск фильма по параметрам пути
+        for (Film film : filmDatabase) {
+            if (film.getTitle().equalsIgnoreCase(title) && film.getReleaseYear() == releaseYear) {
+                return ResponseEntity.ok(film);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new Film("Фильм не найден", releaseYear));
+    }
 }
