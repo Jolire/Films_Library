@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Точка входа в приложение CarDealer.
  * Этот класс запускает Spring Boot-приложение.
  */
+
 @SpringBootApplication
 public class FilmLibraryApplication {
     /**

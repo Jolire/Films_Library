@@ -1,85 +1,98 @@
 package com.cinema.filmlibrary.controller;
 
+import com.cinema.filmlibrary.dto.FilmDto;
 import com.cinema.filmlibrary.entity.Film;
-import java.util.ArrayList;
+import com.cinema.filmlibrary.mapper.FilmMapper;
+import com.cinema.filmlibrary.service.FilmService;
 import java.util.List;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/**
- * Контроллер для обработки запросов, связанных с фильмами.
- */
-@RequestMapping("/films")
+/** Class that control requests and delegate logic to other classes. */
 @RestController
+@RequestMapping("/films")
 public class FilmController {
 
-    private final List<Film> filmDatabase = new ArrayList<>();
+    private final FilmService filmService;
+    private final FilmMapper filmMapper;
 
-    /**
-     * Получает список фильмов по параметрам запроса (title, releaseYear).
-     * Можно передавать один или оба параметра.
-     */
-    public FilmController() {
-        filmDatabase.add(new Film("Inception", 2010));
-        filmDatabase.add(new Film("Interstellar", 2014));
-        filmDatabase.add(new Film("Dune", 2021));
-        filmDatabase.add(new Film("Titanic", 1997));
+    /** Constructor that sets filmLibrary variable. */
+    public FilmController(FilmService filmService, FilmMapper filmMapper) {
+        this.filmService = filmService;
+        this.filmMapper = filmMapper;
     }
-
-    /**
-     * Получает список фильмов по параметрам запроса (title, releaseYear).
-     * Можно передавать один или оба параметра.
+    /** Functions to get film with title.
      *
-     * @param title название фильма (необязательный параметр)
-     * @param releaseYear год выпуска фильма (необязательный параметр)
-     * @return список фильмов, соответствующих запросу
+     * @param title name of the film
+     * @return JSON form of the Film object
      */
-
     @GetMapping
-    public ResponseEntity<List<Film>> getFilms(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) Integer releaseYear) {
-
-        List<Film> filteredFilms = new ArrayList<>();
-
-        for (Film film : filmDatabase) {
-            boolean matchesTitle = (title == null || film.getTitle().equalsIgnoreCase(title));
-            boolean matchesYear = (releaseYear == null || film.getReleaseYear() == releaseYear);
-
-            if (matchesTitle && matchesYear) {
-                filteredFilms.add(film);
-            }
-        }
-
-        if (filteredFilms.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(filteredFilms);
-        }
-
-        return ResponseEntity.ok(filteredFilms);
+    public List<FilmDto> getFilms(@RequestParam(required = false) String title) {
+        List<Film> films = filmService.findByTitleContaining(title);
+        return films.stream()
+                .map(filmMapper :: toDto)
+                .toList();
     }
 
-    /**
-     * Получает фильм по параметрам пути (title, releaseYear).
+    /** Function to get all film from db.
+     *
+     * @return JSON form of the all Film object
      */
-    @GetMapping("/{title}/{releaseYear}")
-    public ResponseEntity<Film> getFilmByPath(
-            @PathVariable String title,
-            @PathVariable int releaseYear) {
-
-        // Поиск фильма по параметрам пути
-        for (Film film : filmDatabase) {
-            if (film.getTitle().equalsIgnoreCase(title) && film.getReleaseYear() == releaseYear) {
-                return ResponseEntity.ok(film);
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new Film("Фильм не найден", releaseYear));
+    @GetMapping("/all")
+    public List<FilmDto> getAllFilms() {
+        List<Film> films = filmService.findAllFilms();
+        return films.stream()
+                .map(filmMapper :: toDto)
+                .toList();
     }
+
+    /** Function to get film by id
+     *
+      * @param id unique number of film
+     * @return JSON form of the Film object
+     */
+    @GetMapping("/{id}")
+    public FilmDto getFilmById(@PathVariable long id) {
+        Film film = filmService.findById(id);
+        return filmMapper.toDto(film);
+    }
+
+    /** Function to create film
+     *
+     * @param film JSON form of object
+     * @return JSON form of object Film
+     */
+    @PostMapping
+    public Film createFilm(@RequestBody Film film) {
+        return filmService.save(film);
+    }
+
+    /** Function to update film
+     *
+     * @param id unique number of film
+     * @param film JSON form of object
+     * @return form of object Film
+     */
+    @PutMapping("/{id}")
+    public Film updateFilm(@PathVariable long id, @RequestBody Film film) {
+        return filmService.update(id, film);
+    }
+
+    /** Function to delete a film
+     *
+     * @param id unique number of film
+     */
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable Long id) {
+        filmService.delete(id);
+    }
+
 }

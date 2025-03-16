@@ -1,26 +1,51 @@
 package com.cinema.filmlibrary.entity;
 
-/**
- * Класс {@code Film} представляет информацию о фильме.
- * Содержит основные характеристики фильма: название и год выпуска.
- */
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import java.util.List;
+
+/** Class show a Film hierarchy. */
+@Entity
 public class Film {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String title;
-    private int releaseYear;
 
-    /**
-     * Конструктор без параметров.
-     */
-    public Film() {
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "film_director",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    private List<Director> directors;
+
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews;
+
+    public List<Director> getDirectors() {
+        return directors;
     }
 
-    /**
-     * Конструктор с параметрами.
-     */
-    public Film(String title, int releaseYear) {
-        this.title = title;
-        this.releaseYear = releaseYear;
+    public void setDirectors(List<Director> directors) {
+        this.directors = directors;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -31,11 +56,11 @@ public class Film {
         this.title = title;
     }
 
-    public int getReleaseYear() {
-        return releaseYear;
+    public List<Review> getReviews() {
+        return reviews;
     }
 
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
 }
