@@ -12,15 +12,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Class control requests and delegate logic to other classes. */
+
+/** Class that controls requests and delegates logic to other classes. */
 @RestController
-@RequestMapping("films/{filmId}/directors")
+@RequestMapping("/films/{filmId}/directors")
 public class DirectorController {
     private final DirectorService directorService;
 
-    /** Constructor of the class
+    /** Constructor of the class.
      *
-     * @param directorService object of Director class
+     * @param directorService - object of DirectorService class
      */
     public DirectorController(DirectorService directorService) {
         this.directorService = directorService;
@@ -29,52 +30,52 @@ public class DirectorController {
     /** Function to add director to the film.
      *
      * @param director object of the Director class
-     * @param filmId unique number of film
+     * @param filmId id of the film
      * @return created director
      */
     @PostMapping
-    public Director createDirector(@RequestBody Director director, @PathVariable long filmId) {
+    public Director createDirector(@RequestBody Director director, @PathVariable Long filmId) {
         return directorService.save(director, filmId);
     }
 
-    /** Function to update director on the film.
+    /** Function to update director.
      *
-     * @param directorId unique number of director
-     * @param director object of the Director class
+     * @param directorId - id of the director
+     * @param director - object of the Director class
      * @return updated director
      */
     @PutMapping("/{directorId}")
-    public Director updateDirector(@PathVariable long directorId, @RequestBody Director director) {
-        return directorService.save(director, directorId);
+    public Director updateDirector(@PathVariable Long directorId, @RequestBody Director director) {
+        return directorService.update(directorId, director);
     }
 
-    /** Function to delete director on the film.
+    /** Function to delete director.
      *
-     * @param directorId unique number of director
-     * @param filmId director object of the Director class
+     * @param directorId id of the director
+     * @param filmId id of the film
      */
     @DeleteMapping("/{directorId}")
-    public void deleteDirector(@PathVariable long directorId, @PathVariable long filmId) {
+    public void deleteDirector(@PathVariable Long directorId, @PathVariable Long filmId) {
         directorService.delete(directorId, filmId);
     }
 
     /** Function to get director of the film.
      *
-     * @param directorId unique number of director
-     * @param filmId unique number of film
-     * @return return director
+     * @param directorId - id of the director
+     * @param filmId - id of the film
+     * @return director of the film
      */
     @GetMapping("/{directorId}")
-    public Director findByFilmId(@PathVariable long directorId, @PathVariable long filmId) {
+    public Director findByFilmId(@PathVariable Long directorId, @PathVariable Long filmId) {
         return directorService.findById(directorId, filmId);
     }
 
-    /** Function to get all directors
+    /** Function to get all directors from database.
      *
      * @return list of directors
      */
     @GetMapping("/all")
-    public List<Director> findAll() {
+    public List<Director> findAllDirectors() {
         return directorService.findAllDirectors();
     }
 }

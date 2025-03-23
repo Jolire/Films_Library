@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+
 /** Class to store business logic of the app. */
 @Service
 public class DirectorService {
@@ -16,11 +17,12 @@ public class DirectorService {
     private static final String ERROR_MESSAGE = "Director not found";
 
     private final DirectorRepository directorRepository;
-    public final FilmService filmService;
-    public final FilmRepository filmRepository;
+    private final FilmService filmService;
+    private final FilmRepository filmRepository;
 
     /** Constructor to set directorRepository variable. */
-    public DirectorService(DirectorRepository directorRepository, FilmService filmService, FilmRepository filmRepository) {
+    public DirectorService(DirectorRepository directorRepository,
+                           FilmService filmService, FilmRepository filmRepository) {
         this.directorRepository = directorRepository;
         this.filmService = filmService;
         this.filmRepository = filmRepository;
@@ -28,45 +30,47 @@ public class DirectorService {
 
     /** Function that returns director with certain id.
      *
-     * @param id unique number of object in db
-     * @return JSON form of Director object
-     * */
-
+     * @param id идентификатор объекта в базе данных
+     * @param filmId идентификатор фильма
+     * @return объект класса Director
+     */
     public Director findById(Long id, Long filmId) {
         if (!filmRepository.existsById(filmId)) {
-            throw new EntityNotFoundException(ERROR_MESSAGE);
+            throw new EntityNotFoundException("Film not found");
         }
 
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
-        Director director = directorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
+        Director director = directorRepository
+                .findById(id).orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
         if (directors.contains(director)) {
             return director;
-        } else{
+        } else {
             throw new EntityNotFoundException(ERROR_MESSAGE);
         }
     }
 
     /** Function to get all directors from database.
      *
-     * @return list pf directors
+     * @return список всех режиссеров
      */
     public List<Director> findAllDirectors() {
         return directorRepository.findAll();
     }
 
-    /** Function that save director in database.
+    /** Function that saves director in database.
      *
-     * @param director object of Director class
-     * @return JSON form of Director object
-     * */
-    public Director save(Director director,Long filmId) {
-
+     * @param director объект класса Director
+     * @param filmId идентификатор фильма
+     * @return объект класса Director
+     */
+    public Director save(Director director, Long filmId) {
         Film film = filmService.findById(filmId);
 
         if (film == null) {
             throw new EntityNotFoundException("Film not found");
         }
+
         List<Film> newFilms = new ArrayList<>();
 
         if (directorRepository.existsByName(director.getName())) {
@@ -87,10 +91,10 @@ public class DirectorService {
 
     /** Function that updates info about director with certain id.
      *
-     * @param id unique number of directors in db
-     * @param director object of Director class
-     * @return JSON форму объекта Author
-     * */
+     * @param id идентификатор объекта в базе данных
+     * @param director объект класса Director
+     * @return объект класса Director
+     */
     public Director update(Long id, Director director) {
         if (!directorRepository.existsById(id)) {
             throw new EntityNotFoundException(ERROR_MESSAGE);
@@ -101,7 +105,6 @@ public class DirectorService {
 
     /** Function that deletes director with certain id. */
     public void delete(Long id, Long filmId) {
-
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
         Director director = findById(id, filmId);

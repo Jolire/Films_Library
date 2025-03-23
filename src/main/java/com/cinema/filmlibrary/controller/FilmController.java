@@ -16,83 +16,89 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/** Class that control requests and delegate logic to other classes. */
+/** Class that controls requests and delegates logic to other classes. */
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
+    /** Variable to save FilmService object. */
     private final FilmService filmService;
+
     private final FilmMapper filmMapper;
 
-    /** Constructor that sets filmLibrary variable. */
+    /** Constructor that sets filmService variable. */
     public FilmController(FilmService filmService, FilmMapper filmMapper) {
         this.filmService = filmService;
         this.filmMapper = filmMapper;
     }
-    /** Functions to get film with title.
+
+    /**
+     * Function to get films with title containing substring.
      *
-     * @param title name of the film
-     * @return JSON form of the Film object
+     * @param title название фильма
+     * @return список фильмов, содержащих указанную подстроку в названии
      */
     @GetMapping
     public List<FilmDto> getFilms(@RequestParam(required = false) String title) {
         List<Film> films = filmService.findByTitleContaining(title);
         return films.stream()
-                .map(filmMapper :: toDto)
+                .map(filmMapper::toDto)
                 .toList();
     }
 
-    /** Function to get all film from db.
+    /** Function to get all films from database.
      *
-     * @return JSON form of the all Film object
+     * @return список всех фильмов
      */
     @GetMapping("/all")
     public List<FilmDto> getAllFilms() {
         List<Film> films = filmService.findAllFilms();
         return films.stream()
-                .map(filmMapper :: toDto)
+                .map(filmMapper::toDto)
                 .toList();
     }
 
-    /** Function to get film by id
+    /**
+     * Function that holds Get request and returns film with certain id.
      *
-      * @param id unique number of film
-     * @return JSON form of the Film object
+     * @param id идентификатор фильма в базе данных
+     * @return объект класса FilmDto
      */
     @GetMapping("/{id}")
-    public FilmDto getFilmById(@PathVariable long id) {
+    public FilmDto getFilmById(@PathVariable Long id) {
         Film film = filmService.findById(id);
         return filmMapper.toDto(film);
     }
 
-    /** Function to create film
+    /**
+     * Function that holds Post request and saves film in database.
      *
-     * @param film JSON form of object
-     * @return JSON form of object Film
+     * @param film объект класса Film
+     * @return сохраненный объект класса Film
      */
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmService.save(film);
     }
 
-    /** Function to update film
+    /**
+     * Function that holds Put request and updates film with certain id.
      *
-     * @param id unique number of film
-     * @param film JSON form of object
-     * @return form of object Film
+     * @param id идентификатор фильма в базе данных
+     * @param film объект класса Film
+     * @return обновленный объект класса Film
      */
     @PutMapping("/{id}")
-    public Film updateFilm(@PathVariable long id, @RequestBody Film film) {
+    public Film updateFilm(@PathVariable Long id, @RequestBody Film film) {
         return filmService.update(id, film);
     }
 
-    /** Function to delete a film
+    /** Function that holds Delete request and removes film from database.
      *
-     * @param id unique number of film
+     * @param id идентификатор фильма в базе данных
      */
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {
         filmService.delete(id);
     }
-
 }

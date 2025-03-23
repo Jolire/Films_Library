@@ -7,11 +7,12 @@ import org.springframework.stereotype.Repository;
 
 /** Class that represents database containing reviews. */
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Integer> {
-    /** Function to get all Reviews of the film.
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+    /** Function to get all reviews of the film.
      *
      * @param filmId id of the film
-     * @return reviews of the book
+     * @return reviews of the film
      */
     List<Review> findByFilmId(Long filmId);
 }

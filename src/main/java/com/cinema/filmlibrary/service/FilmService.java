@@ -18,53 +18,52 @@ public class FilmService {
     private final DirectorRepository directorRepository;
 
     /**
-     * Constructor to mad=ke filmRepository.
+     * Constructor to set filmRepository variable.
      *
-     * @param filmRepository object of Film
-     * */
-
+     * @param filmRepository объект класса FilmRepository
+     * @param directorRepository объект класса DirectorRepository
+     */
     public FilmService(FilmRepository filmRepository, DirectorRepository directorRepository) {
         this.filmRepository = filmRepository;
         this.directorRepository = directorRepository;
     }
 
-    /** Function that returns Films which have "title".
+    /** Function that returns films which contain substring "title".
      *
-     * @param title name of the Film
-     * @return JSON form of Film object
-     * */
-
-    public List<Film>findByTitleContaining(String title){
+     * @param title название фильма
+     * @return список фильмов, содержащих указанную подстроку в названии
+     */
+    public List<Film> findByTitleContaining(String title) {
         return filmRepository.findByTitleContaining(title);
     }
 
-    /** Function to get all books from database.
+    /** Function to get all films from database.
      *
-     * @return all books in database
+     * @return все фильмы в базе данных
      */
-
-    public List<Film> findAllFilms(){
+    public List<Film> findAllFilms() {
         return filmRepository.findAll();
     }
 
     /** Function that returns film with certain id.
      *
-     * @param id the unique number of film
-     * @return JSON form of object
-     * */
+     * @param id идентификатор фильма в базе данных
+     * @return объект класса Film
+     */
     public Film findById(Long id) {
-        return filmRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Film not found"));
+        return filmRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Film not found"));
     }
 
-    /** Function that saves films in db.
+    /** Function that saves film in database.
      *
-     * @param film object of Film class
-     * @return JSON form of Film object
-     * */
+     * @param film объект класса Film
+     * @return объект класса Film
+     */
     public Film save(Film film) {
 
         if (film.getDirectors() != null) {
-            List <Director> savedDirectors = new ArrayList<>();
+            List<Director> savedDirectors = new ArrayList<>();
 
             for (Director director : film.getDirectors()) {
 
@@ -75,21 +74,23 @@ public class FilmService {
                     savedDirectors.add(directorRepository.save(director));
                 }
             }
+
             film.setDirectors(savedDirectors);
         }
 
         for (Review review : film.getReviews()) {
             review.setFilm(film);
         }
+
         return filmRepository.save(film);
     }
 
     /** Function that updates info about film.
      *
-     * @param id the unique number of film
-     * @param film object of Film class
-     * @return JSON form of Film object
-     * */
+     * @param id идентификатор фильма
+     * @param film объект класса Film
+     * @return объект класса Film
+     */
     public Film update(Long id, Film film) {
         if (!filmRepository.existsById(id)) {
             throw new EntityNotFoundException("Film not found");
@@ -98,9 +99,10 @@ public class FilmService {
         return filmRepository.save(film);
     }
 
-    /** Function that removes film from db.
+    /**
+     * Function that removes film from database.
      *
-     * @param id unique number of object in db
+     * @param id идентификатор объекта в базе данных
      */
     public void delete(Long id) {
         filmRepository.deleteById(id);

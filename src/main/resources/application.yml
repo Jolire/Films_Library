@@ -16,3 +16,16 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Конфигурация SpringDoc OpenAPI (Swagger)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html  # Путь к Swagger UI
+    enabled: true  # Включить Swagger UI
+  api-docs:
+    path: /v3/api-docs  # Путь к JSON-документации OpenAPI
+    enabled: true  # Включить генерацию OpenAPI документации
+  info:
+    title: Film Library API  # Заголовок API
+    description: API for managing films, directors, and reviews.  # Описание API
+    version: 1.0.0  # Версия API

@@ -24,6 +24,7 @@ public class ReviewController {
     /** Constructor of the class.
      *
      * @param reviewService - object of ReviewService class
+     * @param reviewMapper - object of ReviewMapper class
      */
     public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper) {
         this.reviewService = reviewService;
@@ -41,14 +42,14 @@ public class ReviewController {
         return reviewService.createReview(filmId, review);
     }
 
-    /** Function to update review of the book.
+    /** Function to update review of the film.
      *
      * @param reviewId - id of the review
      * @param review - object of the Review class
      * @return updated review
      */
     @PutMapping("/{reviewId}")
-    public Review updateReview(@PathVariable Integer reviewId, @RequestBody Review review) {
+    public Review updateReview(@PathVariable Long reviewId, @RequestBody Review review) {
         return reviewService.updateReview(reviewId, review);
     }
 
@@ -57,7 +58,7 @@ public class ReviewController {
      * @param reviewId - id of the review
      */
     @DeleteMapping("/{reviewId}")
-    public void deleteReview(@PathVariable Integer reviewId) {
+    public void deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReview(reviewId);
     }
 
@@ -73,14 +74,13 @@ public class ReviewController {
     /** Function to get all reviews of the film.
      *
      * @param filmId - id of the film
-     * @return reviews of the book
+     * @return reviews of the film
      */
     @GetMapping
-    public List<ReviewDto> getReviewsByBookId(@PathVariable Long filmId) {
-        List<Review> reviews = reviewService.getReviewsByFilm(filmId);
+    public List<ReviewDto> getReviewsByFilmId(@PathVariable Long filmId) {
+        List<Review> reviews = reviewService.getReviewsByFilmId(filmId);
         return reviews.stream()
                 .map(reviewMapper::toDto)
                 .toList();
     }
 }
-
