@@ -10,20 +10,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
+import java.util.List;
 
 /** Class that represents film. */
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public class Film {
     @Id
@@ -31,10 +30,10 @@ public class Film {
     private Long id;
 
     private String title;
-    private int releaseYear;
     private String genre;
+    private String releaseYear;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "film_director",
             joinColumns = @JoinColumn(name = "film_id"),
@@ -44,6 +43,4 @@ public class Film {
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
-
-    // Дополнительные методы, если необходимо
 }

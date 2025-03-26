@@ -7,7 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Class that makes CRUD operations with Review object. */
+/** Class that make CRUD operations with Review object. */
 @Service
 public class ReviewService {
 
@@ -17,16 +17,16 @@ public class ReviewService {
     /** Constructor of the class.
      *
      * @param reviewRepository object of the ReviewRepository class
-     * @param filmService object of the FilmService class
+     * @param filmService object of the BookRepository class
      */
     public ReviewService(ReviewRepository reviewRepository, FilmService filmService) {
         this.reviewRepository = reviewRepository;
         this.filmService = filmService;
     }
 
-    /** Function to add review to the film.
+    /** Function to add review to the book.
      *
-     * @param filmId id of the film
+     * @param filmId id of the book
      * @param review object of the Review class
      * @return created review
      */
@@ -40,20 +40,18 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    /** Function to update review of the film.
+    /** Function to update review of the book.
      *
      * @param id id of the review
      * @param review object of the Review class
      * @return updated review
      */
-    public Review updateReview(Long id, Review review) {
+    public Review updateReview(Integer id, Review review) {
         if (!reviewRepository.existsById(id)) {
-            throw new EntityNotFoundException("Review not found");
+            throw new EntityNotFoundException("Book not found");
         }
-        Review initialReview = reviewRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Review not found"));
+        Review initialReview = reviewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Review not found"));
         initialReview.setMessage(review.getMessage());
-        initialReview.setRating(review.getRating());
         return reviewRepository.save(initialReview);
     }
 
@@ -61,17 +59,18 @@ public class ReviewService {
      *
      * @param reviewId id of the review
      */
-    public void deleteReview(Long reviewId) {
+    public void deleteReview(Integer reviewId) {
         reviewRepository.deleteById(reviewId);
     }
 
-    /** Function to get all reviews of the film.
+    /** Function to get all reviews of the book.
      *
-     * @param filmId id of the film
-     * @return reviews of the film
+     * @param filmId id of the book
+     * @return reviews of the book
      */
     public List<Review> getReviewsByFilmId(Long filmId) {
-        return reviewRepository.findByFilmId(filmId);
+
+        return reviewRepository.findFilmById(filmId);
     }
 
     /** Function to get all reviews from database.

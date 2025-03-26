@@ -7,17 +7,17 @@ import org.springframework.stereotype.Repository;
 /** Class that represents database containing directors. **/
 @Repository
 public interface DirectorRepository extends JpaRepository<Director, Long> {
-    /** Function to find director by name.
+    /** Function to find author bi name.
      *
-     * @param name - name of the director
-     * @return object of class Director
+     * @param name - name of the author
+     * @return object of class Author
      */
     Director findByName(String name);
 
     /** Function to check existence of object in database by name.
      *
-     * @param name name of the director
-     * @return true if director exists, false otherwise
+     * @param name name pf the author
+     * @return true if author exists, false otherwise
      */
     boolean existsByName(String name);
 }

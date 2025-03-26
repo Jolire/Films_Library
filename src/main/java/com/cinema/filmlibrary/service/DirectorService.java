@@ -4,6 +4,7 @@ import com.cinema.filmlibrary.entity.Director;
 import com.cinema.filmlibrary.entity.Film;
 import com.cinema.filmlibrary.repository.DirectorRepository;
 import com.cinema.filmlibrary.repository.FilmRepository;
+import com.cinema.filmlibrary.service.FilmService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class DirectorService {
 
-    private static final String ERROR_MESSAGE = "Director not found";
+    private static final String ERROR_MESSAGE = "Author not found";
 
     private final DirectorRepository directorRepository;
     private final FilmService filmService;
     private final FilmRepository filmRepository;
 
-    /** Constructor to set directorRepository variable. */
+    /** Constructor to set authorRepository variable. */
     public DirectorService(DirectorRepository directorRepository,
                            FilmService filmService, FilmRepository filmRepository) {
         this.directorRepository = directorRepository;
@@ -28,12 +29,11 @@ public class DirectorService {
         this.filmRepository = filmRepository;
     }
 
-    /** Function that returns director with certain id.
+    /** Function that returns author with certain id.
      *
      * @param id идентификатор объекта в базе данных
-     * @param filmId идентификатор фильма
-     * @return объект класса Director
-     */
+     * @return JSON форму объекта Author
+     * */
     public Director findById(Long id, Long filmId) {
         if (!filmRepository.existsById(filmId)) {
             throw new EntityNotFoundException("Film not found");
@@ -41,8 +41,8 @@ public class DirectorService {
 
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
-        Director director = directorRepository
-                .findById(id).orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
+        Director director = directorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
         if (directors.contains(director)) {
             return director;
         } else {
@@ -50,21 +50,21 @@ public class DirectorService {
         }
     }
 
-    /** Function to get all directors from database.
+    /** Function to get all authors from database.
      *
-     * @return список всех режиссеров
+     * @return list pf authors
      */
     public List<Director> findAllDirectors() {
         return directorRepository.findAll();
     }
 
-    /** Function that saves director in database.
+    /** Function that save author in database.
      *
-     * @param director объект класса Director
-     * @param filmId идентификатор фильма
-     * @return объект класса Director
-     */
+     * @param director объект класса Author
+     * @return JSON форму объекта Author
+     * */
     public Director save(Director director, Long filmId) {
+
         Film film = filmService.findById(filmId);
 
         if (film == null) {
@@ -92,9 +92,9 @@ public class DirectorService {
     /** Function that updates info about director with certain id.
      *
      * @param id идентификатор объекта в базе данных
-     * @param director объект класса Director
-     * @return объект класса Director
-     */
+     * @param director объект класса Author
+     * @return JSON форму объекта Author
+     * */
     public Director update(Long id, Director director) {
         if (!directorRepository.existsById(id)) {
             throw new EntityNotFoundException(ERROR_MESSAGE);
@@ -103,8 +103,9 @@ public class DirectorService {
         return directorRepository.save(director);
     }
 
-    /** Function that deletes director with certain id. */
+    /** Function that deletes author with certain id. */
     public void delete(Long id, Long filmId) {
+
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
         Director director = findById(id, filmId);

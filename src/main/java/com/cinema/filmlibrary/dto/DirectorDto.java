@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
 /** Class that represents data transfer object of the Director. */
 @Getter
 @Setter

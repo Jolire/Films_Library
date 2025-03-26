@@ -9,42 +9,39 @@ import com.cinema.filmlibrary.entity.Review;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-
 /** Class to transform object from dto and vice versa. */
 @Component
 public class FilmMapper {
-    private final DirectorMapper directorMapper;
+    private final DirectorMapper authorMapper;
     private final ReviewMapper reviewMapper;
 
     /** Constructor of the class. */
     public FilmMapper(DirectorMapper directorMapper, ReviewMapper reviewMapper) {
-        this.directorMapper = directorMapper;
+        this.authorMapper = directorMapper;
         this.reviewMapper = reviewMapper;
     }
 
     /** Function to transform standard object to DTO.
      *
-     * @param film object of the Film class
+     * @param film object of the Book class
      * @return dto object
      */
     public FilmDto toDto(Film film) {
         FilmDto filmDto = new FilmDto();
         filmDto.setTitle(film.getTitle());
-        filmDto.setReleaseYear(film.getReleaseYear());
-        filmDto.setGenre(film.getGenre());
 
         if (film.getDirectors() != null) {
-            List<DirectorDto> directorsDto = film.getDirectors().stream()
-                    .map(directorMapper::toDto)
+            List<DirectorDto> directorDtos = film.getDirectors().stream()
+                    .map(authorMapper::toDto)
                     .toList();
-            filmDto.setDirectors(directorsDto);
+            filmDto.setDirectors(directorDtos);
         }
 
         if (film.getReviews() != null) {
-            List<ReviewDto> reviewsDto = film.getReviews().stream()
+            List<ReviewDto> reviewsDtos = film.getReviews().stream()
                     .map(reviewMapper::toDto)
                     .toList();
-            filmDto.setReviews(reviewsDto);
+            filmDto.setReviews(reviewsDtos);
         }
 
         return filmDto;
@@ -52,18 +49,16 @@ public class FilmMapper {
 
     /** Function to transform DTO to standard object.
      *
-     * @param filmDto object of the FilmDto class
-     * @return standard Film object
+     * @param filmDto object of the BookDto class
+     * @return standard Book object
      */
     public Film toEntity(FilmDto filmDto) {
         Film film = new Film();
         film.setTitle(filmDto.getTitle());
-        film.setReleaseYear(filmDto.getReleaseYear());
-        film.setGenre(filmDto.getGenre());
 
         if (filmDto.getDirectors() != null) {
             List<Director> directors = filmDto.getDirectors().stream()
-                    .map(directorMapper::toEntity)
+                    .map(authorMapper::toEntity)
                     .toList();
             film.setDirectors(directors);
         }
@@ -74,7 +69,6 @@ public class FilmMapper {
                     .toList();
             film.setReviews(reviews);
         }
-
         return film;
     }
 }

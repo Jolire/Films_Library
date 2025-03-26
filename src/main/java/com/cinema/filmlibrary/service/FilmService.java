@@ -18,48 +18,47 @@ public class FilmService {
     private final DirectorRepository directorRepository;
 
     /**
-     * Constructor to set filmRepository variable.
+     * Constructor to set bookRepository variable.
      *
-     * @param filmRepository объект класса FilmRepository
-     * @param directorRepository объект класса DirectorRepository
-     */
+     * @param filmRepository объект класса BookRepository
+     * */
     public FilmService(FilmRepository filmRepository, DirectorRepository directorRepository) {
         this.filmRepository = filmRepository;
         this.directorRepository = directorRepository;
     }
 
-    /** Function that returns films which contain substring "title".
+    /** Function that returns books which contains substring "title".
      *
-     * @param title название фильма
-     * @return список фильмов, содержащих указанную подстроку в названии
-     */
+     * @param title название книги
+     * @return JSON форму объекта Book
+     * */
     public List<Film> findByTitleContaining(String title) {
         return filmRepository.findByTitleContaining(title);
     }
 
-    /** Function to get all films from database.
+    /** Function to get all books from database.
      *
-     * @return все фильмы в базе данных
+     * @return all books in database
      */
     public List<Film> findAllFilms() {
         return filmRepository.findAll();
     }
 
-    /** Function that returns film with certain id.
+    /** Function that returns book with certain id.
      *
-     * @param id идентификатор фильма в базе данных
-     * @return объект класса Film
-     */
+     * @param id идентификатор книги в базе данных
+     * @return JSON форму объекта Book
+     * */
     public Film findById(Long id) {
         return filmRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Film not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
     }
 
-    /** Function that saves film in database.
+    /** Function that saves book in database.
      *
-     * @param film объект класса Film
-     * @return объект класса Film
-     */
+     * @param film объек класса Book
+     * @return JSON форму объекта Book
+     * */
     public Film save(Film film) {
 
         if (film.getDirectors() != null) {
@@ -85,26 +84,27 @@ public class FilmService {
         return filmRepository.save(film);
     }
 
-    /** Function that updates info about film.
+    /** Function that updates info about book.
      *
-     * @param id идентификатор фильма
-     * @param film объект класса Film
-     * @return объект класса Film
-     */
-    public Film update(Long id, Film film) {
+     * @param id идентификатор книги
+     * @param film объект класса Book
+     * @return JSON форму объекта Book
+     * */
+    public Film update(Long id, Film film ) {
         if (!filmRepository.existsById(id)) {
-            throw new EntityNotFoundException("Film not found");
+            throw new EntityNotFoundException("Book not found");
         }
         film.setId(id);
         return filmRepository.save(film);
     }
 
     /**
-     * Function that removes film from database.
+     * Function that removes book from database.
      *
      * @param id идентификатор объекта в базе данных
-     */
+     * */
     public void delete(Long id) {
         filmRepository.deleteById(id);
+
     }
 }

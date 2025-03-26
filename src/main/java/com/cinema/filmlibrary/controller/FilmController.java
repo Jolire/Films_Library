@@ -16,39 +16,39 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/** Class that controls requests and delegates logic to other classes. */
+/** Class that control requests and delegate logic to other classes. **/
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    /** Variable to save FilmService object. */
+    /** Variable to save BookService object. */
     private final FilmService filmService;
 
     private final FilmMapper filmMapper;
 
-    /** Constructor that sets filmService variable. */
+    /** Constructor that sets bookService variable. */
     public FilmController(FilmService filmService, FilmMapper filmMapper) {
         this.filmService = filmService;
         this.filmMapper = filmMapper;
     }
 
     /**
-     * Function to get films with title containing substring.
+     * Function to get books with title containing substring.
      *
-     * @param title название фильма
-     * @return список фильмов, содержащих указанную подстроку в названии
-     */
+     * @param title название книги
+     * @return JSON форму объекта Book
+     * */
     @GetMapping
-    public List<FilmDto> getFilms(@RequestParam(required = false) String title) {
+    public List<FilmDto> getFilm(@RequestParam(required = false) String title) {
         List<Film> films = filmService.findByTitleContaining(title);
         return films.stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
 
-    /** Function to get all films from database.
+    /** Function to get all books from database.
      *
-     * @return список всех фильмов
+     * @return JSON objects of all books
      */
     @GetMapping("/all")
     public List<FilmDto> getAllFilms() {
@@ -59,11 +59,11 @@ public class FilmController {
     }
 
     /**
-     * Function that holds Get request and returns film with certain id.
+     * Function that holds Get request and returns book with certain id.
      *
-     * @param id идентификатор фильма в базе данных
-     * @return объект класса FilmDto
-     */
+     * @param id идентификатор объекта в базе данных
+     * @return JSON форму объекта Book
+     * */
     @GetMapping("/{id}")
     public FilmDto getFilmById(@PathVariable Long id) {
         Film film = filmService.findById(id);
@@ -71,32 +71,32 @@ public class FilmController {
     }
 
     /**
-     * Function that holds Post request and saves film in database.
+     * Function that holds Post request and save book in database.
      *
-     * @param film объект класса Film
-     * @return сохраненный объект класса Film
-     */
+     * @param film JSON форма объекта
+     * @return JSON форму объекта Book
+     * */
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmService.save(film);
     }
 
     /**
-     * Function that holds Put request and updates film with certain id.
+     * Function that holds Put request and updates book with certain id.
      *
-     * @param id идентификатор фильма в базе данных
-     * @param film объект класса Film
-     * @return обновленный объект класса Film
-     */
+     * @param id идентификатор объекта в базе данных
+     * @param film JSON форма объекта
+     * @return JSON форму объекта Book
+     * */
     @PutMapping("/{id}")
     public Film updateFilm(@PathVariable Long id, @RequestBody Film film) {
         return filmService.update(id, film);
     }
 
-    /** Function that holds Delete request and removes film from database.
+    /** Function that holds Delete request and removes book from database.
      *
-     * @param id идентификатор фильма в базе данных
-     */
+     * @param id идентификатор объекта в базе данных
+     * */
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {
         filmService.delete(id);

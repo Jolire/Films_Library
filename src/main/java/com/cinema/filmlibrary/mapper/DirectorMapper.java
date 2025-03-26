@@ -16,21 +16,17 @@ public class DirectorMapper {
     public DirectorDto toDto(Director director) {
         DirectorDto directorDto = new DirectorDto();
         directorDto.setName(director.getName());
-        directorDto.setNationality(director.getNationality());
-        directorDto.setBirthYear(director.getBirthYear());
         return directorDto;
     }
 
     /** Function to transform DTO to standard object.
      *
-     * @param directorDto object of DirectorDto class
-     * @return standard Director object
+     * @param directorDto object of AuthorDto object
+     * @return standard Author object
      */
     public Director toEntity(DirectorDto directorDto) {
         Director director = new Director();
         director.setName(directorDto.getName());
-        director.setNationality(directorDto.getNationality());
-        director.setBirthYear(directorDto.getBirthYear());
         return director;
     }
 }
