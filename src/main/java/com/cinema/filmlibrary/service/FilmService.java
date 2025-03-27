@@ -8,64 +8,99 @@ import com.cinema.filmlibrary.repository.FilmRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 
-/** Class to store business logic of the app. */
+/** Class to store business logic related to films. */
 @Service
 public class FilmService {
 
     private final FilmRepository filmRepository;
     private final DirectorRepository directorRepository;
+    private final Map<Long, Film> filmCacheId;
+    private final Map<Long, List<Review>> reviewCacheId;
+    private final Map<Long, Director> directorCacheId;
 
     /**
-     * Constructor to set bookRepository variable.
+     * Constructor to initialize dependencies.
      *
-     * @param filmRepository объект класса BookRepository
-     * */
-    public FilmService(FilmRepository filmRepository, DirectorRepository directorRepository) {
+     * @param filmRepository Film repository
+     * @param directorRepository Director repository
+     * @param filmCacheId Cache for films
+     * @param reviewCacheId Cache for reviews
+     * @param directorCacheId Cache for directors
+     */
+    public FilmService(FilmRepository filmRepository, DirectorRepository directorRepository,
+                       Map<Long, Film> filmCacheId, Map<Long, List<Review>> reviewCacheId,
+                       Map<Long, Director> directorCacheId) {
         this.filmRepository = filmRepository;
         this.directorRepository = directorRepository;
+        this.filmCacheId = filmCacheId;
+        this.reviewCacheId = reviewCacheId;
+        this.directorCacheId = directorCacheId;
     }
 
-    /** Function that returns books which contains substring "title".
+    /** Finds film by title.
      *
-     * @param title название книги
-     * @return JSON форму объекта Book
-     * */
-    public List<Film> findByTitleContaining(String title) {
-        return filmRepository.findByTitleContaining(title);
+     * @param title film title
+     * @return Film object
+     */
+    public Film findByTitle(String title) {
+        return filmRepository.findByTitle(title);
     }
 
-    /** Function to get all books from database.
+    /** Gets all films from database.
      *
-     * @return all books in database
+     * @return list of all films
      */
     public List<Film> findAllFilms() {
         return filmRepository.findAll();
     }
 
-    /** Function that returns book with certain id.
+    /** Finds film by ID with caching.
      *
-     * @param id идентификатор книги в базе данных
-     * @return JSON форму объекта Book
-     * */
+     * @param id film ID
+     * @return Film object
+     * @throws EntityNotFoundException if film not found
+     */
     public Film findById(Long id) {
-        return filmRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Film cachedFilm = filmCacheId.get(id);
+        if (cachedFilm != null) {
+            System.out.println("Film by id -  was got from cache");
+            return cachedFilm;
+        }
+
+        Film film = filmRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Film not found"));
+        filmCacheId.put(id, film);
+
+        return film;
     }
 
-    /** Function that saves book in database.
-     *
-     * @param film объек класса Book
-     * @return JSON форму объекта Book
-     * */
-    public Film save(Film film) {
+    /** Find all review many than count. */
+    public List<Film> findByReviewCount(Long reviewCount) {
+        return filmRepository.findByReviewCount(reviewCount);
+    }
 
+    /** Finds films by director's name.
+     *
+     * @param directorName name of the director
+     * @return list of films by specified director
+     */
+    public List<Film> findByDirectorName(String directorName) {
+        return filmRepository.findByDirectorName(directorName);
+    }
+
+    /** Saves film in database with proper director and review associations.
+     *
+     * @param film Film object to save
+     * @return saved Film object
+     */
+    public Film save(Film film) {
         if (film.getDirectors() != null) {
             List<Director> savedDirectors = new ArrayList<>();
 
             for (Director director : film.getDirectors()) {
-
                 if (directorRepository.existsByName(director.getName())) {
                     Director existingDirector = directorRepository.findByName(director.getName());
                     savedDirectors.add(existingDirector);
@@ -77,34 +112,64 @@ public class FilmService {
             film.setDirectors(savedDirectors);
         }
 
-        for (Review review : film.getReviews()) {
-            review.setFilm(film);
+        if (film.getReviews() != null) {
+            for (Review review : film.getReviews()) {
+                review.setFilm(film);
+            }
         }
 
         return filmRepository.save(film);
     }
 
-    /** Function that updates info about book.
+    /** Updates film information.
      *
-     * @param id идентификатор книги
-     * @param film объект класса Book
-     * @return JSON форму объекта Book
-     * */
-    public Film update(Long id, Film film ) {
+     * @param id film ID
+     * @param film updated Film object
+     * @return updated Film object
+     * @throws EntityNotFoundException if film not found
+     */
+    public Film update(Long id, Film film) {
         if (!filmRepository.existsById(id)) {
-            throw new EntityNotFoundException("Book not found");
+            throw new EntityNotFoundException("Film not found");
         }
+
+        Film existingFilm = findById(id);
+        film.setDirectors(existingFilm.getDirectors());
+        film.setReviews(existingFilm.getReviews());
+
         film.setId(id);
-        return filmRepository.save(film);
+
+        Film updatedFilm = filmRepository.save(film);
+        if (filmCacheId.containsKey(id)) {
+            System.out.println("Film was updated in cache");
+            filmCacheId.put(id, updatedFilm);
+        }
+
+        return updatedFilm;
     }
 
-    /**
-     * Function that removes book from database.
+    /** Deletes film from database and clears related caches.
      *
-     * @param id идентификатор объекта в базе данных
-     * */
+     * @param id film ID
+     */
     public void delete(Long id) {
+        reviewCacheId.remove(id);
+        filmCacheId.remove(id);
+        directorCacheId.clear();
         filmRepository.deleteById(id);
+    }
 
+    /** Clears film cache. */
+    public void clearCache() {
+        System.out.println("Film was delete from cache");
+        filmCacheId.clear();
+    }
+
+    /** Gets film cache map.
+     *
+     * @return film cache map
+     */
+    public Map<Long, Film> getFilmCacheId() {
+        return filmCacheId;
     }
 }

@@ -4,36 +4,42 @@ import com.cinema.filmlibrary.entity.Director;
 import com.cinema.filmlibrary.entity.Film;
 import com.cinema.filmlibrary.repository.DirectorRepository;
 import com.cinema.filmlibrary.repository.FilmRepository;
-import com.cinema.filmlibrary.service.FilmService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 
-
-/** Class to store business logic of the app. */
+/** Class to store business logic related to directors. */
 @Service
 public class DirectorService {
 
-    private static final String ERROR_MESSAGE = "Author not found";
+    private static final String ERROR_MESSAGE = "Director not found";
 
     private final DirectorRepository directorRepository;
     private final FilmService filmService;
     private final FilmRepository filmRepository;
+    private final Map<Long, Director> directorCacheId;
+    private final Map<Long, Film> filmCacheId;
 
-    /** Constructor to set authorRepository variable. */
-    public DirectorService(DirectorRepository directorRepository,
-                           FilmService filmService, FilmRepository filmRepository) {
+    /** Constructor to initialize dependencies. */
+    public DirectorService(DirectorRepository directorRepository, FilmService filmService,
+                           FilmRepository filmRepository, Map<Long, Director> directorCacheId,
+                           Map<Long, Film> filmCacheId) {
         this.directorRepository = directorRepository;
         this.filmService = filmService;
         this.filmRepository = filmRepository;
+        this.directorCacheId = directorCacheId;
+        this.filmCacheId = filmCacheId;
     }
 
-    /** Function that returns author with certain id.
+    /** Finds a director by ID and verifies they worked on the specified film.
      *
-     * @param id идентификатор объекта в базе данных
-     * @return JSON форму объекта Author
-     * */
+     * @param id director's ID
+     * @param filmId film's ID to verify association
+     * @return the Director object
+     * @throws EntityNotFoundException if film or director not found or not associated
+     */
     public Director findById(Long id, Long filmId) {
         if (!filmRepository.existsById(filmId)) {
             throw new EntityNotFoundException("Film not found");
@@ -41,30 +47,39 @@ public class DirectorService {
 
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
-        Director director = directorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
+        Director director = directorCacheId.get(id);
+
+        if (director == null) {
+            director = directorRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException(ERROR_MESSAGE));
+            directorCacheId.put(id, director);
+        } else {
+            System.out.println("Director was got from cache");
+        }
+
         if (directors.contains(director)) {
             return director;
-        } else {
-            throw new EntityNotFoundException(ERROR_MESSAGE);
         }
+
+        throw new EntityNotFoundException(ERROR_MESSAGE);
     }
 
-    /** Function to get all authors from database.
+    /** Retrieves all directors from the database.
      *
-     * @return list pf authors
+     * @return list of all directors
      */
     public List<Director> findAllDirectors() {
         return directorRepository.findAll();
     }
 
-    /** Function that save author in database.
+    /** Saves a director and associates them with a film.
      *
-     * @param director объект класса Author
-     * @return JSON форму объекта Author
-     * */
+     * @param director the Director object to save
+     * @param filmId the ID of the film to associate with
+     * @return the saved Director object
+     */
     public Director save(Director director, Long filmId) {
-
+        filmService.clearCache();
         Film film = filmService.findById(filmId);
 
         if (film == null) {
@@ -89,23 +104,43 @@ public class DirectorService {
         return directorRepository.save(director);
     }
 
-    /** Function that updates info about director with certain id.
+    /** Updates information about a director.
      *
-     * @param id идентификатор объекта в базе данных
-     * @param director объект класса Author
-     * @return JSON форму объекта Author
-     * */
+     * @param id the ID of the director to update
+     * @param director the updated Director object
+     * @return the updated Director object
+     */
     public Director update(Long id, Director director) {
-        if (!directorRepository.existsById(id)) {
-            throw new EntityNotFoundException(ERROR_MESSAGE);
+        if (!directorCacheId.containsKey(id)) {
+            if (!directorRepository.existsById(id)) {
+                throw new EntityNotFoundException(ERROR_MESSAGE);
+            }
         }
+
         director.setId(id);
-        return directorRepository.save(director);
+        Director updatedDirector = directorRepository.save(director);
+        directorCacheId.clear();
+
+        for (Map.Entry<Long, Film> filmEntry : filmCacheId.entrySet()) {
+            Film film = filmEntry.getValue();
+            List<Director> directors = film.getDirectors();
+            if (directors.removeIf(dir -> dir.getId().equals(updatedDirector.getId()))) {
+                directors.add(updatedDirector);
+                film.setDirectors(directors);
+                filmCacheId.put(filmEntry.getKey(), film);
+            }
+        }
+
+        return updatedDirector;
     }
 
-    /** Function that deletes author with certain id. */
+    /** Deletes a director's association with a film.
+     *
+     * @param id the director's ID
+     * @param filmId the film's ID to remove association from
+     */
     public void delete(Long id, Long filmId) {
-
+        filmService.clearCache();
         Film film = filmService.findById(filmId);
         List<Director> directors = film.getDirectors();
         Director director = findById(id, filmId);
@@ -119,6 +154,7 @@ public class DirectorService {
         films.remove(film);
         if (films.isEmpty()) {
             directorRepository.delete(director);
+            directorCacheId.remove(id);
         } else {
             director.setFilms(films);
             update(id, director);

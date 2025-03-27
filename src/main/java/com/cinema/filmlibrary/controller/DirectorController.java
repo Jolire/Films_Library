@@ -12,63 +12,72 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Class that control requests and delegate logic to other classes. **/
+/** Controller for handling director-related operations for films. */
 @RestController
 @RequestMapping("/films/{filmId}/directors")
 public class DirectorController {
     private final DirectorService directorService;
 
-    /** Constructor of the class.
+    /** Constructor for DirectorController.
      *
-     * @param directorService - object of AuthorService class
+     * @param directorService service for director operations
      */
     public DirectorController(DirectorService directorService) {
         this.directorService = directorService;
     }
 
-    /** Function to add author to the book.
+    /** Adds a director to the specified film.
      *
-     * @param director object of the Author class
-     * @return created author
+     * @param director Director object to add
+     * @param filmId ID of the film
+     * @return created director
      */
     @PostMapping
-    public Director createDirector(@RequestBody Director director, @PathVariable Long filmId) {
+    public Director addDirector(@RequestBody Director director, @PathVariable Long filmId) {
         return directorService.save(director, filmId);
     }
 
-    /** Function to update review of the book.
+    /** Updates director information.
      *
-     * @param directorId - id of the author
-     * @param director - object of the Author class
-     * @return updated author
+     * @param directorId ID of the director to update
+     * @param director Updated director data
+     * @return updated director
      */
     @PutMapping("/{directorId}")
-    public Director updateDirector(@PathVariable Long directorId, @RequestBody Director director) {
+    public Director updateDirector(
+            @PathVariable Long directorId,
+            @RequestBody Director director) {
         return directorService.update(directorId, director);
     }
 
-    /** Function to delete author.
+    /** Removes a director from a film or deletes them if no other films exist.
      *
-     * @param directorId id of the author
+     * @param directorId ID of the director to remove
+     * @param filmId ID of the film to remove the director from
      */
     @DeleteMapping("/{directorId}")
-    public void deleteAuthor(@PathVariable Long directorId, @PathVariable Long filmId) {
+    public void removeDirector(
+            @PathVariable Long directorId,
+            @PathVariable Long filmId) {
         directorService.delete(directorId, filmId);
     }
 
-    /** Function to get author of the book.
+    /** Gets a director who worked on the specified film.
      *
-     * @param directorId - id of the author
-     * @return author of the book
+     * @param directorId ID of the director
+     * @param filmId ID of the film to verify association
+     * @return director information
      */
     @GetMapping("/{directorId}")
-    public Director findByBookId(@PathVariable Long directorId, @PathVariable Long filmId) {
+    public Director getFilmDirector(
+            @PathVariable Long directorId,
+            @PathVariable Long filmId) {
         return directorService.findById(directorId, filmId);
     }
 
-    /** Function to get all authors from database.
+    /** Gets all directors from the database.
      *
-     * @return list of authors
+     * @return list of all directors
      */
     @GetMapping("/all")
     public List<Director> findAllDirectors() {

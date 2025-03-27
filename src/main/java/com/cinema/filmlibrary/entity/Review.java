@@ -16,11 +16,11 @@ import lombok.ToString;
 
 /** Class to store info about review. */
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Review {
 
     @Id
@@ -34,5 +34,4 @@ public class Review {
     @JoinColumn(name = "film_id")
     @JsonIgnore
     private Film film;
-
 }

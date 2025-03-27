@@ -16,6 +16,8 @@ public class DirectorMapper {
     public DirectorDto toDto(Director director) {
         DirectorDto directorDto = new DirectorDto();
         directorDto.setName(director.getName());
+        directorDto.setBirthYear(director.getBirthYear());
+        directorDto.setNationality(director.getNationality());
         return directorDto;
     }
 
@@ -27,6 +29,8 @@ public class DirectorMapper {
     public Director toEntity(DirectorDto directorDto) {
         Director director = new Director();
         director.setName(directorDto.getName());
+        director.setBirthYear(directorDto.getBirthYear());
+        director.setNationality(directorDto.getNationality());
         return director;
     }
 }

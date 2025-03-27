@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
-    /** Function to get all reviews of the book.
+    /** Function to get all reviews of the film.
      *
-     * @param filmId id of the book
-     * @return reviews of the book
+     * @param filmId id of the film
+     * @return reviews of the film
      */
-    List<Review> findFilmById(Long filmId);
+    List<Review> findByFilmId(Long filmId);
 }

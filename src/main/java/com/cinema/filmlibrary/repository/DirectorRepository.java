@@ -9,15 +9,15 @@ import org.springframework.stereotype.Repository;
 public interface DirectorRepository extends JpaRepository<Director, Long> {
     /** Function to find author bi name.
      *
-     * @param name - name of the author
-     * @return object of class Author
+     * @param name - name of the director
+     * @return object of class director
      */
     Director findByName(String name);
 
     /** Function to check existence of object in database by name.
      *
-     * @param name name pf the author
-     * @return true if author exists, false otherwise
+     * @param name name pf the director
+     * @return true if director exists, false otherwise
      */
     boolean existsByName(String name);
 }

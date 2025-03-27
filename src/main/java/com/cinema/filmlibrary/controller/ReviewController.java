@@ -3,10 +3,8 @@ package com.cinema.filmlibrary.controller;
 import com.cinema.filmlibrary.dto.ReviewDto;
 import com.cinema.filmlibrary.entity.Review;
 import com.cinema.filmlibrary.mapper.ReviewMapper;
-
-import java.util.List;
-
 import com.cinema.filmlibrary.service.ReviewService;
+import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,70 +14,80 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Class to hold CRUD operations with reviews. */
+/**
+ * Controller for handling review operations for films.
+ */
 @RestController
-@RequestMapping("/films/{filmsId}/reviews")
+@RequestMapping("/films/{filmId}/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
 
-    /** Constructor of the class.
+    /** Constructor for ReviewController.
      *
-     * @param reviewService - object of ReviewService class
+     * @param reviewService service for review operations
+     * @param reviewMapper mapper for converting between Review and ReviewDto
      */
     public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper) {
         this.reviewService = reviewService;
         this.reviewMapper = reviewMapper;
     }
 
-    /** Function to add review to the book.
+    /** Adds a review to the specified film.
      *
-     * @param filmsId - id of the book
-     * @param review - object of the Review class
-     * @return created review
+     * @param filmId ID of the film
+     * @param review Review object to add
+     * @return created Review
      */
     @PostMapping
-    public Review createReview(@PathVariable Long filmsId, @RequestBody Review review) {
-        return reviewService.createReview(filmsId, review);
+    public Review createReview(@PathVariable Long filmId, @RequestBody Review review) {
+        return reviewService.createReview(filmId, review);
     }
 
-    /** Function to update review of the book.
+    /** Updates an existing review for a film.
      *
-     * @param reviewId - id of the review
-     * @param review - object of the Review class
-     * @return updated review
+     * @param reviewId ID of the review to update
+     * @param review Updated review data
+     * @param filmId ID of the associated film
+     * @return updated Review
      */
     @PutMapping("/{reviewId}")
-    public Review updateReview(@PathVariable Integer reviewId, @RequestBody Review review) {
-        return reviewService.updateReview(reviewId, review);
+    public Review updateReview(
+            @PathVariable int reviewId,
+            @RequestBody Review review,
+            @PathVariable Long filmId) {
+        return reviewService.updateReview(reviewId, review, filmId);
     }
 
-    /** Function to delete review.
+    /** Deletes a review.
      *
-     * @param reviewId - id of the review
+     * @param reviewId ID of the review to delete
+     * @param filmId ID of the associated film
      */
     @DeleteMapping("/{reviewId}")
-    public void deleteReview(@PathVariable Integer reviewId) {
-        reviewService.deleteReview(reviewId);
+    public void deleteReview(
+            @PathVariable int reviewId,
+            @PathVariable Long filmId) {
+        reviewService.deleteReview(reviewId, filmId);
     }
 
-    /** Function to get all reviews from database.
+    /** Gets all reviews from the database.
      *
-     * @return list of reviews
+     * @return list of all reviews
      */
     @GetMapping("/all")
     public List<Review> findAllReviews() {
         return reviewService.findAllReviews();
     }
 
-    /** Function to get all reviews of the book.
+    /** Gets all reviews for a specific film.
      *
-     * @param filmsId - id of the book
-     * @return reviews of the book
+     * @param filmId ID of the film
+     * @return list of ReviewDtos for the film
      */
     @GetMapping
-    public List<ReviewDto> getReviewsByBookId(@PathVariable Long filmsId) {
-        List<Review> reviews = reviewService.getReviewsByFilmId(filmsId);
+    public List<ReviewDto> getReviewsByFilmId(@PathVariable Long filmId) {
+        List<Review> reviews = reviewService.getReviewsByFilmId(filmId);
         return reviews.stream()
                 .map(reviewMapper::toDto)
                 .toList();

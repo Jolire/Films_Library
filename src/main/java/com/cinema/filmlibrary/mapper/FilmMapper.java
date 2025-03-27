@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 /** Class to transform object from dto and vice versa. */
 @Component
 public class FilmMapper {
-    private final DirectorMapper authorMapper;
+    private final DirectorMapper directorMapper;
     private final ReviewMapper reviewMapper;
 
     /** Constructor of the class. */
     public FilmMapper(DirectorMapper directorMapper, ReviewMapper reviewMapper) {
-        this.authorMapper = directorMapper;
+        this.directorMapper = directorMapper;
         this.reviewMapper = reviewMapper;
     }
 
@@ -29,10 +29,11 @@ public class FilmMapper {
     public FilmDto toDto(Film film) {
         FilmDto filmDto = new FilmDto();
         filmDto.setTitle(film.getTitle());
-
+        filmDto.setGenre(film.getGenre());
+        filmDto.setReleaseYear(film.getReleaseYear());
         if (film.getDirectors() != null) {
             List<DirectorDto> directorDtos = film.getDirectors().stream()
-                    .map(authorMapper::toDto)
+                    .map(directorMapper::toDto)
                     .toList();
             filmDto.setDirectors(directorDtos);
         }
@@ -55,10 +56,11 @@ public class FilmMapper {
     public Film toEntity(FilmDto filmDto) {
         Film film = new Film();
         film.setTitle(filmDto.getTitle());
-
+        film.setGenre(filmDto.getGenre());
+        film.setReleaseYear(filmDto.getReleaseYear());
         if (filmDto.getDirectors() != null) {
             List<Director> directors = filmDto.getDirectors().stream()
-                    .map(authorMapper::toEntity)
+                    .map(directorMapper::toEntity)
                     .toList();
             film.setDirectors(directors);
         }

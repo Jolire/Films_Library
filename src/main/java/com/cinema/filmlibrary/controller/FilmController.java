@@ -16,39 +16,38 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/** Class that control requests and delegate logic to other classes. **/
+/** Controller for handling film-related operations. */
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    /** Variable to save BookService object. */
     private final FilmService filmService;
-
     private final FilmMapper filmMapper;
 
-    /** Constructor that sets bookService variable. */
+    /** Constructor for FilmController.
+     *
+     * @param filmService service for film operations
+     * @param filmMapper mapper for converting between Film and FilmDto
+     */
     public FilmController(FilmService filmService, FilmMapper filmMapper) {
         this.filmService = filmService;
         this.filmMapper = filmMapper;
     }
 
-    /**
-     * Function to get books with title containing substring.
+    /** Gets films by title containing substring.
      *
-     * @param title название книги
-     * @return JSON форму объекта Book
-     * */
+     * @param title substring to search in film titles
+     * @return FilmDto of the found film
+     */
     @GetMapping
-    public List<FilmDto> getFilm(@RequestParam(required = false) String title) {
-        List<Film> films = filmService.findByTitleContaining(title);
-        return films.stream()
-                .map(filmMapper::toDto)
-                .toList();
+    public FilmDto getFilmByTitle(@RequestParam(required = false) String title) {
+        Film film = filmService.findByTitle(title);
+        return filmMapper.toDto(film);
     }
 
-    /** Function to get all books from database.
+    /** Gets all films from database.
      *
-     * @return JSON objects of all books
+     * @return list of all FilmDtos
      */
     @GetMapping("/all")
     public List<FilmDto> getAllFilms() {
@@ -58,45 +57,66 @@ public class FilmController {
                 .toList();
     }
 
-    /**
-     * Function that holds Get request and returns book with certain id.
+    /** Gets film by ID.
      *
-     * @param id идентификатор объекта в базе данных
-     * @return JSON форму объекта Book
-     * */
+     * @param id ID of the film
+     * @return FilmDto of the requested film
+     */
     @GetMapping("/{id}")
     public FilmDto getFilmById(@PathVariable Long id) {
         Film film = filmService.findById(id);
         return filmMapper.toDto(film);
     }
 
-    /**
-     * Function that holds Post request and save book in database.
+    /** Gets films by director's name.
      *
-     * @param film JSON форма объекта
-     * @return JSON форму объекта Book
-     * */
+     * @param directorName name of the director
+     * @return list of FilmDtos by specified director
+     */
+    @GetMapping("/find")
+    public List<FilmDto> getBooksByAuthorName(@RequestParam(required = false) String directorName) {
+        return filmService.findByDirectorName(directorName).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    /** Function to get books with review amount greater than reviewCount.
+     *
+     * @param reviewCount amount of reviews
+     * @return list of books
+     */
+    @GetMapping("/find/reviews")
+    public List<FilmDto> getBooksByReviewCount(@RequestParam(required = false) Long reviewCount) {
+        return filmService.findByReviewCount(reviewCount).stream()
+                .map(filmMapper::toDto)
+                .toList();
+    }
+
+    /** Creates a new film.
+     *
+     * @param film Film object to create
+     * @return created Film object
+     */
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmService.save(film);
     }
 
-    /**
-     * Function that holds Put request and updates book with certain id.
+    /** Updates an existing film.
      *
-     * @param id идентификатор объекта в базе данных
-     * @param film JSON форма объекта
-     * @return JSON форму объекта Book
-     * */
+     * @param id ID of the film to update
+     * @param film updated Film data
+     * @return updated Film object
+     */
     @PutMapping("/{id}")
     public Film updateFilm(@PathVariable Long id, @RequestBody Film film) {
         return filmService.update(id, film);
     }
 
-    /** Function that holds Delete request and removes book from database.
+    /** Deletes a film.
      *
-     * @param id идентификатор объекта в базе данных
-     * */
+     * @param id ID of the film to delete
+     */
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {
         filmService.delete(id);
